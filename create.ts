@@ -9,6 +9,7 @@ import { createPublicClient, http } from 'viem'
 import { equals } from "./utils/stringsUtil";
 import { IVote } from "./interfaces/IVote";
 import { IProposal } from "./interfaces/IProposal";
+import moment from "moment";
 
 dotenv.config();
 
@@ -40,9 +41,17 @@ const main = async () => {
     });
 
     const spaces = config.spaces;
+    const now = moment().unix();
+
     for (const space of spaces) {
         const lastProposal = await getLastProposal(space);
         if (!lastProposal) {
+            continue;
+        }
+
+        // Check if proposal still ongoing
+        const stillOngoing = lastProposal.start <= now && lastProposal.end >= now;
+        if (!stillOngoing) {
             continue;
         }
 
