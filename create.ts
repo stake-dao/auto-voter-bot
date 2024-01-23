@@ -1,15 +1,11 @@
 import * as dotenv from "dotenv";
-import { BytesLike, ethers } from "ethers";
+import { ethers } from "ethers";
 import snapshot from "@snapshot-labs/snapshot.js";
 import { request, gql } from 'graphql-request'
-import moment from "moment";
-import axios from "axios";
-import * as chains from 'viem/chains'
 import config from './data/config.json';
 import VOTER_ABI from './abis/Voter.json';
-import { privateKeyToAccount } from 'viem/accounts'
 import { mainnet } from 'viem/chains'
-import { createPublicClient, createWalletClient, http } from 'viem'
+import { createPublicClient, http } from 'viem'
 import { equals } from "./utils/stringsUtil";
 import { IVote } from "./interfaces/IVote";
 import { IProposal } from "./interfaces/IProposal";
