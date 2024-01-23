@@ -1,0 +1,19 @@
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 4'
+
+env:
+  HUB: ${{ secrets.HUB }}
+  PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+  VOTE_PRIVATE_KEY: ${{ secrets.VOTE_PRIVATE_KEY }}
+
+jobs:
+  build: # make sure build/ci work properly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          npm install
+      - run: |
+          npm run start
