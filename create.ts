@@ -126,7 +126,7 @@ const getLastProposal = async (space: string): Promise<IProposal | null> => {
     const query = gql`
     query Proposals {
         proposals (
-            where: { space_in: ["sdcrv.eth"], title_contains: "Gauge vote" },
+            where: { space_in: ["${space}"], title_contains: "Gauge vote" },
             orderBy: "created",
             orderDirection: desc
             first: 1
