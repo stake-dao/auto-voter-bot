@@ -1,10 +1,9 @@
 {
-    "spaces": [
-        "sdcrv.eth",
-        "sdfxs.eth",
-        "sdangle.eth",
-        "sdbal.eth",
-        "sdpendle.eth"
-    ],
-    "voterContract": "0x1838ea6444e67310291c8baec365f7a4e57c2d56"
+    "votes": [
+        {
+            "space": "sdcrv.eth",
+            "gaugeAddress": "0x",
+            "weight": 100
+        }
+    ]
 }

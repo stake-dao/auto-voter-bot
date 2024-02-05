@@ -3,11 +3,9 @@ import { ethers } from "ethers";
 import snapshot from "@snapshot-labs/snapshot.js";
 import { request, gql } from 'graphql-request'
 import config from './data/config.json';
-import VOTER_ABI from './abis/Voter.json';
 import { mainnet } from 'viem/chains'
 import { createPublicClient, http } from 'viem'
 import { equals } from "./utils/stringsUtil";
-import { IVote } from "./interfaces/IVote";
 import { IProposal } from "./interfaces/IProposal";
 import moment from "moment";
 
@@ -22,13 +20,7 @@ const main = async () => {
         throw new Error("No private key found in env");
     }
 
-    // Check if the public key (ie : the address which delegated to DELEGATION_PRIVATE_KEY and store user votes) is set
-    if (!process.env.PUBLIC_ADDRESS) {
-        throw new Error("No public key found in env");
-    }
-
     // Get env
-    const publicAddress = process.env.PUBLIC_ADDRESS as `0x${string}`;
     const rpcUrl = process.env.MAINNET_RPC_URL as string;
 
     // Create public client
@@ -40,7 +32,8 @@ const main = async () => {
         }
     });
 
-    const spaces = config.spaces;
+    const spaces = Object.keys(config.votes.reduce((acc, vote) => acc[vote.space.toLowerCase()] = true, {}));
+
     const now = moment().unix();
 
     for (const space of spaces) {
@@ -52,41 +45,6 @@ const main = async () => {
         // Check if proposal still ongoing
         const stillOngoing = lastProposal.start <= now && lastProposal.end >= now;
         if (!stillOngoing) {
-            continue;
-        }
-
-        const results = await publicClient.multicall({
-            contracts: [
-                {
-                    address: config.voterContract as `0x${string}`,
-                    abi: VOTER_ABI as any,
-                    functionName: 'get',
-                    args: [publicAddress, space]
-                },
-            ],
-        });
-
-        // Should have only one result
-        if (results.length > 1) {
-            throw new Error("# votes > 1");
-        }
-
-        const result = results[0];
-
-        // Should not failed here since it should return at least an "empty" vote object
-        if (result.status === "failure") {
-            throw new Error("Failed to fetch vote");
-        }
-
-        const data = (result.result as any) as IVote;
-
-        // Can happened if the user didn't set a vote data for this space
-        if (!equals(data.user, publicAddress)) {
-            continue;
-        }
-
-        // If the user removed his vote, we still have the vote data but killed is set to true
-        if (data.killed) {
             continue;
         }
 
@@ -116,15 +74,17 @@ const main = async () => {
         }
 
         // Construct vote choices based on user vote data
+        const votes = config.votes.filter((vote) => equals(vote.space, space));
+
         const choices: any = {};
-        for (let i = 0; i < data.gauges.length; i++) {
-            const gaugeAddress = data.gauges[i];
+        for (const vote of votes) {
+            const gaugeAddress = vote.gaugeAddress;
             const startGaugeAddress = gaugeAddress.substring(0, 17).toLowerCase();
             if (gaugeAddressesChoice[startGaugeAddress].toString() === undefined) {
                 throw new Error("Gauge address not found");
             }
 
-            choices[gaugeAddressesChoice[startGaugeAddress].toString()] = Number(data.weights[i]);
+            choices[gaugeAddressesChoice[startGaugeAddress].toString()] = Number(vote.weight);
         }
 
         await vote(space, lastProposal.id, choices);
