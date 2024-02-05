@@ -3,8 +3,6 @@ import { ethers } from "ethers";
 import snapshot from "@snapshot-labs/snapshot.js";
 import { request, gql } from 'graphql-request'
 import config from './data/config.json';
-import { mainnet } from 'viem/chains'
-import { createPublicClient, http } from 'viem'
 import { equals } from "./utils/stringsUtil";
 import { IProposal } from "./interfaces/IProposal";
 import moment from "moment";
@@ -19,18 +17,6 @@ const main = async () => {
     if (!process.env.DELEGATION_PRIVATE_KEY) {
         throw new Error("No private key found in env");
     }
-
-    // Get env
-    const rpcUrl = process.env.MAINNET_RPC_URL as string;
-
-    // Create public client
-    const publicClient = createPublicClient({
-        chain: mainnet,
-        transport: http(rpcUrl || undefined),
-        batch: {
-            multicall: true,
-        }
-    });
 
     const spaces = Object.keys(config.votes.reduce((acc, vote) => acc[vote.space.toLowerCase()] = true, {}));
 
