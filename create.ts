@@ -11,6 +11,7 @@ dotenv.config();
 
 const CHOICE_GAUGE_ADDRESS_SEP = " - ";
 const THREE_DOTS = "…";
+const hub = 'https://hub.snapshot.org';
 
 const main = async () => {
     // Check if the delegation private key is set
@@ -106,7 +107,6 @@ const getLastProposal = async (space: string): Promise<IProposal | null> => {
  * Cast a vote on snapshot
  */
 const vote = async (space: string, proposalId: string, choice: any) => {
-    const hub = process.env.HUB;
 
     const client = new snapshot.Client712(hub);
     const pk = process.env.DELEGATION_PRIVATE_KEY as `0x${string}`;
