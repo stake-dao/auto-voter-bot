@@ -6,6 +6,7 @@ import config from './data/config.json';
 import { equals } from "./utils/stringsUtil";
 import { IProposal } from "./interfaces/IProposal";
 import moment from "moment";
+import axios from "axios";
 
 dotenv.config();
 
@@ -19,11 +20,23 @@ const main = async () => {
         throw new Error("No private key found in env");
     }
 
+    // Get available locker spaces
+    const {data: lockersConfig} = await axios.get("https://autovoter.stakedao.org/lockers/lockers.json")
+    const availableSpaces = lockersConfig.map((l: any) => l.space);
+
     const spaces = Object.keys(config.votes.reduce((acc, vote) => acc[vote.space.toLowerCase()] = true, {}));
 
     const now = moment().unix();
 
     for (const space of spaces) {
+        let isAvailableSpace = false;
+        for (const availableSpace of availableSpaces) {
+            if (equals(availableSpace, space)) {
+                isAvailableSpace = true;
+                break;
+            }
+        }
+        
         const lastProposal = await getLastProposal(space);
         if (!lastProposal) {
             continue;
