@@ -36,7 +36,11 @@ const main = async () => {
                 break;
             }
         }
-        
+
+        if(!isAvailableSpace) {
+            continue;
+        }
+
         const lastProposal = await getLastProposal(space);
         if (!lastProposal) {
             continue;
