@@ -24,8 +24,10 @@ const main = async () => {
     const {data: lockersConfig} = await axios.get("https://autovoter.stakedao.org/lockers/lockers.json")
     const availableSpaces = lockersConfig.map((l: any) => l.space);
 
-    const spaces = Object.keys(config.votes.reduce((acc, vote) => acc[vote.space.toLowerCase()] = true, {}));
-
+    const spaces = Object.keys(config.votes.reduce((acc, vote) => {
+        acc[vote.space.toLowerCase()] = true;
+        return acc;
+    }, {}));
     const now = moment().unix();
 
     for (const space of spaces) {
